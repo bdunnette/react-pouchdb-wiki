@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
 import { syncWithRemote } from '../db';
-import { Database, RefreshCw, CheckCircle2, AlertCircle, Link as LinkIcon } from 'lucide-react';
+import { Database, RefreshCw, CheckCircle2, AlertCircle, Link as LinkIcon, Sun, Moon, Monitor } from 'lucide-react';
 
 export const Settings: React.FC = () => {
   const [remoteUrl, setRemoteUrl] = useState(localStorage.getItem('couchdb_url') || '');
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'error' | 'connected'>('idle');
   const [lastSync, setLastSync] = useState<string | null>(localStorage.getItem('last_sync'));
+
+  const [theme, setTheme] = useState<'light' | 'dark' | 'auto'>((localStorage.getItem('theme') as any) || 'auto');
+
+  const handleThemeChange = (newTheme: 'light' | 'dark' | 'auto') => {
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    if (newTheme === 'auto') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', newTheme);
+    }
+  };
 
   const handleSync = () => {
     if (!remoteUrl) return;
@@ -38,6 +50,45 @@ export const Settings: React.FC = () => {
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', padding: '60px 40px' }}>
       <h1 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '32px' }}>Settings</h1>
+      
+      {/* Appearance Section */}
+      <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '32px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+          <Sun size={24} color="var(--accent-color)" />
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Appearance</h2>
+        </div>
+
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '0.95rem' }}>
+          Choose how PouchWiki looks on your device.
+        </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+          {[
+            { id: 'light', label: 'Light', icon: <Sun size={18} /> },
+            { id: 'dark', label: 'Dark', icon: <Moon size={18} /> },
+            { id: 'auto', label: 'Auto', icon: <Monitor size={18} /> }
+          ].map((option) => (
+            <button
+              key={option.id}
+              onClick={() => handleThemeChange(option.id as any)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '12px',
+                background: theme === option.id ? 'var(--accent-color)' : 'transparent',
+                color: theme === option.id ? 'white' : 'var(--text-primary)',
+                border: '1px solid ' + (theme === option.id ? 'var(--accent-color)' : 'var(--border-color)'),
+                fontWeight: 500,
+              }}
+            >
+              {option.icon}
+              {option.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '32px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
