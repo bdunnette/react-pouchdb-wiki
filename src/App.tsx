@@ -11,6 +11,14 @@ function App() {
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
+    // Apply saved theme on mount
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme && savedTheme !== 'auto') {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+  }, []);
+
+  useEffect(() => {
     const init = async () => {
       try {
         const result = await db.allDocs({ include_docs: true });
