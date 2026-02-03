@@ -16,6 +16,16 @@ export interface WikiPage {
   content: string;
   updatedAt: string;
   type: "page";
+  _attachments?: {
+    [filename: string]: {
+      content_type: string;
+      digest?: string;
+      length?: number;
+      revpos?: number;
+      stub?: boolean;
+      data?: any;
+    };
+  };
 }
 
 const db = new PouchDB("wiki_pages");
