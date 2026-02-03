@@ -1,16 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import db, { type WikiPage } from '../db';
-import { Search, Plus, Book, Settings, ChevronRight, Menu, X, Trash2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import db, { type WikiPage } from "../db";
+import {
+  Search,
+  Plus,
+  Book,
+  Settings,
+  ChevronRight,
+  Menu,
+  X,
+  Trash2,
+} from "lucide-react";
+import { motion } from "framer-motion";
 
 interface SidebarProps {
   onPageSelect: (pageId: string) => void;
   currentPageId: string | null;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ onPageSelect, currentPageId }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  onPageSelect,
+  currentPageId,
+}) => {
   const [pages, setPages] = useState<WikiPage[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
@@ -18,50 +30,52 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageSelect, currentPageId })
       try {
         const result = await db.allDocs({
           include_docs: true,
-          attachments: false
+          attachments: false,
         });
         const fetchedPages = result.rows
           .map((row: any) => row.doc)
-          .filter((doc: any) => doc && doc.type === 'page') as WikiPage[];
-        
+          .filter((doc: any) => doc && doc.type === "page") as WikiPage[];
+
         setPages(fetchedPages.sort((a, b) => a.title.localeCompare(b.title)));
       } catch (err) {
-        console.error('Error fetching pages:', err);
+        console.error("Error fetching pages:", err);
       }
     };
 
     fetchPages();
 
     // Listen for changes
-    const changes = db.changes({
-      since: 'now',
-      live: true,
-      include_docs: true
-    }).on('change', () => {
-      fetchPages();
-    });
+    const changes = db
+      .changes({
+        since: "now",
+        live: true,
+        include_docs: true,
+      })
+      .on("change", () => {
+        fetchPages();
+      });
 
     return () => changes.cancel();
   }, []);
 
-  const filteredPages = pages.filter(page => 
-    page.title.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredPages = pages.filter((page) =>
+    page.title.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const addNewPage = async () => {
     const id = `page_${Date.now()}`;
     const newPage: WikiPage = {
       _id: id,
-      title: 'Untitled Page',
-      content: '# New Page\n\nWrite something brilliant...',
+      title: "Untitled Page",
+      content: "# New Page\n\nWrite something brilliant...",
       updatedAt: new Date().toISOString(),
-      type: 'page'
+      type: "page",
     };
     try {
       await db.put(newPage);
       onPageSelect(id);
     } catch (err) {
-      console.error('Error creating page:', err);
+      console.error("Error creating page:", err);
     }
   };
 
@@ -73,29 +87,29 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageSelect, currentPageId })
           await db.remove(page._id, page._rev);
         }
       } catch (err) {
-        console.error('Error deleting page:', err);
+        console.error("Error deleting page:", err);
       }
     }
   };
 
   return (
     <>
-      <button 
+      <button
         className="mobile-toggle"
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
         style={{
-          position: 'fixed',
-          top: '20px',
-          left: isSidebarOpen ? '280px' : '20px',
+          position: "fixed",
+          top: "20px",
+          left: isSidebarOpen ? "280px" : "20px",
           zIndex: 100,
-          background: 'var(--accent-color)',
-          color: 'white',
-          padding: '8px',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'all 0.3s ease'
+          background: "var(--accent-color)",
+          color: "white",
+          padding: "8px",
+          borderRadius: "50%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "all 0.3s ease",
         }}
       >
         {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
@@ -103,103 +117,159 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageSelect, currentPageId })
 
       <motion.aside
         initial={false}
-        animate={{ width: isSidebarOpen ? 300 : 0, opacity: isSidebarOpen ? 1 : 0 }}
+        animate={{
+          width: isSidebarOpen ? 300 : 0,
+          opacity: isSidebarOpen ? 1 : 0,
+        }}
         style={{
-          height: '100vh',
-          background: 'var(--sidebar-bg)',
-          backdropFilter: 'var(--glass-blur)',
-          borderRight: '1px solid var(--border-color)',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-          flexShrink: 0
+          height: "100vh",
+          background: "var(--sidebar-bg)",
+          backdropFilter: "var(--glass-blur)",
+          borderRight: "1px solid var(--border-color)",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          flexShrink: 0,
         }}
       >
-        <div style={{ padding: '24px', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-            <div style={{ 
-              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-              padding: '8px',
-              borderRadius: '12px',
-              display: 'flex'
-            }}>
+        <div style={{ padding: "24px", flexShrink: 0 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              marginBottom: "24px",
+            }}
+          >
+            <div
+              style={{
+                background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                padding: "8px",
+                borderRadius: "12px",
+                display: "flex",
+              }}
+            >
               <Book size={24} color="white" />
             </div>
-            <h1 style={{ fontSize: '1.25rem', fontWeight: 700, letterSpacing: '-0.02em' }}>PouchWiki</h1>
+            <h1
+              style={{
+                fontSize: "1.25rem",
+                fontWeight: 700,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              PouchWiki
+            </h1>
           </div>
 
-          <div style={{ position: 'relative', marginBottom: '16px' }}>
-            <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+          <div style={{ position: "relative", marginBottom: "16px" }}>
+            <Search
+              size={16}
+              style={{
+                position: "absolute",
+                left: "12px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "var(--text-secondary)",
+              }}
+            />
             <input
               type="text"
               placeholder="Search pages..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ width: '100%', paddingLeft: '36px', fontSize: '0.9rem' }}
+              style={{ width: "100%", paddingLeft: "36px", fontSize: "0.9rem" }}
             />
           </div>
 
           <button
             onClick={addNewPage}
             style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              padding: '10px',
-              background: 'var(--accent-color)',
-              color: 'white',
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              padding: "10px",
+              background: "var(--accent-color)",
+              color: "white",
               fontWeight: 600,
-              fontSize: '0.9rem'
+              fontSize: "0.9rem",
             }}
           >
             <Plus size={18} /> New Page
           </button>
         </div>
 
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0 12px 24px' }}>
-          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', padding: '0 12px 12px' }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "0 12px 24px" }}>
+          <div
+            style={{
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              color: "var(--text-secondary)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              padding: "0 12px 12px",
+            }}
+          >
             Documents
           </div>
-          {filteredPages.map(page => (
+          {filteredPages.map((page) => (
             <div
               key={page._id}
               onClick={() => onPageSelect(page._id)}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '10px 12px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                marginBottom: '4px',
-                background: currentPageId === page._id ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
-                color: currentPageId === page._id ? 'var(--accent-color)' : 'var(--text-primary)',
-                transition: 'all 0.2s ease'
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "10px 12px",
+                borderRadius: "8px",
+                cursor: "pointer",
+                marginBottom: "4px",
+                background:
+                  currentPageId === page._id
+                    ? "rgba(99, 102, 241, 0.1)"
+                    : "transparent",
+                color:
+                  currentPageId === page._id
+                    ? "var(--accent-color)"
+                    : "var(--text-primary)",
+                transition: "all 0.2s ease",
               }}
               className="sidebar-item"
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflow: 'hidden' }}>
-                <ChevronRight size={14} style={{ opacity: currentPageId === page._id ? 1 : 0.3 }} />
-                <span style={{ 
-                  whiteSpace: 'nowrap', 
-                  overflow: 'hidden', 
-                  textOverflow: 'ellipsis',
-                  fontSize: '0.95rem',
-                  fontWeight: currentPageId === page._id ? 600 : 400
-                }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  overflow: "hidden",
+                }}
+              >
+                <ChevronRight
+                  size={14}
+                  style={{ opacity: currentPageId === page._id ? 1 : 0.3 }}
+                />
+                <span
+                  style={{
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    fontSize: "0.95rem",
+                    fontWeight: currentPageId === page._id ? 600 : 400,
+                  }}
+                >
                   {page.title}
                 </span>
               </div>
-              <button 
+              <button
                 onClick={(e) => deletePage(e, page)}
                 style={{
-                  background: 'transparent',
-                  color: 'var(--text-secondary)',
-                  padding: '4px',
-                  display: 'flex',
-                  opacity: 0
+                  background: "transparent",
+                  color: "var(--text-secondary)",
+                  padding: "4px",
+                  display: "flex",
+                  opacity: 0,
                 }}
                 className="delete-btn"
               >
@@ -209,18 +279,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ onPageSelect, currentPageId })
           ))}
         </div>
 
-        <div style={{ padding: '16px', borderTop: '1px solid var(--border-color)', backdropFilter: 'var(--glass-blur)' }}>
+        <div
+          style={{
+            padding: "16px",
+            borderTop: "1px solid var(--border-color)",
+            backdropFilter: "var(--glass-blur)",
+          }}
+        >
           <button
-            onClick={() => onPageSelect('settings')}
+            onClick={() => onPageSelect("settings")}
             style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '10px 12px',
-              background: 'transparent',
-              color: 'var(--text-secondary)',
-              fontSize: '0.9rem'
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              padding: "10px 12px",
+              background: "transparent",
+              color: "var(--text-secondary)",
+              fontSize: "0.9rem",
             }}
           >
             <Settings size={18} /> Settings

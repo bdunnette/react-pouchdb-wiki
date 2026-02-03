@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
-import { Sidebar } from './components/Sidebar'
-import { Editor } from './components/Editor'
-import { Settings } from './components/Settings'
-import db from './db'
-import { motion, AnimatePresence } from 'framer-motion'
-import { BookOpen } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { Sidebar } from "./components/Sidebar";
+import { Editor } from "./components/Editor";
+import { Settings } from "./components/Settings";
+import db from "./db";
+import { motion, AnimatePresence } from "framer-motion";
+import { BookOpen } from "lucide-react";
 
 function App() {
   const [currentPageId, setCurrentPageId] = useState<string | null>(null);
@@ -12,9 +12,9 @@ function App() {
 
   useEffect(() => {
     // Apply saved theme on mount
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme && savedTheme !== 'auto') {
-      document.documentElement.setAttribute('data-theme', savedTheme);
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme && savedTheme !== "auto") {
+      document.documentElement.setAttribute("data-theme", savedTheme);
     }
   }, []);
 
@@ -22,32 +22,35 @@ function App() {
     const init = async () => {
       try {
         const result = await db.allDocs({ include_docs: true });
-        const firstPage = result.rows.find((row: any) => !row.id.startsWith('_'));
-        
+        const firstPage = result.rows.find(
+          (row: any) => !row.id.startsWith("_"),
+        );
+
         if (!firstPage) {
           // Create initial welcome page
           const welcomePage = {
-            _id: 'page_welcome',
-            title: 'Welcome to PouchWiki',
-            content: '# Welcome to your new Wiki!\n\nThis is a local-first wiki powered by **PouchDB**.\n\n### Key Features:\n- **Local-first**: Works offline, stores data in your browser.\n- **Sync**: Connect to a CouchDB instance in Settings to sync across devices.\n- **Markdown**: Use full markdown syntax for your notes.\n\nEnjoy writing!',
+            _id: "page_welcome",
+            title: "Welcome to PouchWiki",
+            content:
+              "# Welcome to your new Wiki!\n\nThis is a local-first wiki powered by **PouchDB**.\n\n### Key Features:\n- **Local-first**: Works offline, stores data in your browser.\n- **Sync**: Connect to a CouchDB instance in Settings to sync across devices.\n- **Markdown**: Use full markdown syntax for your notes.\n\nEnjoy writing!",
             updatedAt: new Date().toISOString(),
-            type: 'page' as const
+            type: "page" as const,
           };
           await db.put(welcomePage);
-          setCurrentPageId('page_welcome');
+          setCurrentPageId("page_welcome");
         } else {
           setCurrentPageId(firstPage.id);
         }
 
         // Auto-start sync if URL is available
-        const remoteUrl = localStorage.getItem('couchdb_url');
+        const remoteUrl = localStorage.getItem("couchdb_url");
         if (remoteUrl) {
-          import('./db').then(({ syncWithRemote }) => {
+          import("./db").then(({ syncWithRemote }) => {
             syncWithRemote(remoteUrl);
           });
         }
       } catch (err) {
-        console.error('Init error:', err);
+        console.error("Init error:", err);
       } finally {
         setIsInitializing(false);
       }
@@ -57,11 +60,20 @@ function App() {
 
   if (isInitializing) {
     return (
-      <div style={{ height: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-color)' }}>
+      <div
+        style={{
+          height: "100vh",
+          width: "100vw",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "var(--bg-color)",
+        }}
+      >
         <motion.div
           animate={{ scale: [1, 1.1, 1] }}
           transition={{ repeat: Infinity, duration: 2 }}
-          style={{ color: 'var(--accent-color)' }}
+          style={{ color: "var(--accent-color)" }}
         >
           <BookOpen size={48} />
         </motion.div>
@@ -70,24 +82,45 @@ function App() {
   }
 
   return (
-    <div style={{ display: 'flex', width: '100%', minHeight: '100vh' }}>
+    <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
       <Sidebar onPageSelect={setCurrentPageId} currentPageId={currentPageId} />
-      
-      <main style={{ flex: 1, height: '100vh', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+
+      <main
+        style={{
+          flex: 1,
+          height: "100vh",
+          overflowY: "auto",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <AnimatePresence mode="wait">
-          {currentPageId === 'settings' ? (
+          {currentPageId === "settings" ? (
             <Settings key="settings" />
           ) : currentPageId ? (
-            <Editor key={currentPageId} pageId={currentPageId} onNavigate={setCurrentPageId} />
+            <Editor
+              key={currentPageId}
+              pageId={currentPageId}
+              onNavigate={setCurrentPageId}
+            />
           ) : (
-            <div key="empty" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}>
+            <div
+              key="empty"
+              style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--text-secondary)",
+              }}
+            >
               Select a page or create a new one to get started.
             </div>
           )}
         </AnimatePresence>
       </main>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

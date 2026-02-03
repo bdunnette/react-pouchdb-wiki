@@ -5,7 +5,7 @@ import * as PouchDBFindBase from "pouchdb-find";
 const PouchDB = (PouchDBBase as any).default || PouchDBBase;
 const PouchDBFind = (PouchDBFindBase as any).default || PouchDBFindBase;
 
-if (typeof PouchDB.plugin === 'function') {
+if (typeof PouchDB.plugin === "function") {
   PouchDB.plugin(PouchDBFind);
 }
 
@@ -34,9 +34,9 @@ const db = new PouchDB("wiki_pages");
 const DEFAULT_REMOTE_URL = "http://admin:admin@localhost:5984/wiki";
 
 // Initialize sync if a URL is stored or use the default for local development
-const storedUrl = localStorage.getItem('couchdb_url') || DEFAULT_REMOTE_URL;
+const storedUrl = localStorage.getItem("couchdb_url") || DEFAULT_REMOTE_URL;
 if (storedUrl) {
-  localStorage.setItem('couchdb_url', storedUrl);
+  localStorage.setItem("couchdb_url", storedUrl);
 }
 
 export default db;
