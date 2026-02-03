@@ -51,3 +51,17 @@ You can easily link pages together using the broad wiki-link syntax:
 - **Icons**: Lucide React
 - **Animations**: Framer Motion
 - **Markdown Rendering**: React Markdown
+
+## Pre-commit Hooks (prek) ⚡
+
+This project uses `prek` (a fast Rust-based pre-commit runner) to maintain code quality.
+
+1. **Install hooks**:
+   ```bash
+   bun run prek install
+   ```
+2. **Configuration**: Managed in `.prek.yaml`.
+3. **Manual Run**: Check all files anytime:
+   ```bash
+   bun run prek run --all-files
+   ```
